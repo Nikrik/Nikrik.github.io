@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TETRIS на HTML и JS</title>
+    <style>
+        body {
+            background-color: #ddd;
+            margin: 0px;
+            padding: 0px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        canvas {
+            margin: 50px;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <canvas id="nextCanvas"></canvas>
+    <script>
+        // Получаем ссылку на canvas и создаем контекст рисования
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        var nextCanvas = document.getElementById("nextCanvas");
+        var nextCtx = nextCanvas.getContext("2d");
+        var nextWidth = 4;
+        var nextHeight = 4;
+        var nextCellSize = 40;
+        nextCanvas.width = nextWidth * nextCellSize;
+        nextCanvas.height = nextHeight * nextCellSize;
+        function drawNextTetromino() {
+            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+            for (var y = 0; y < nextTetromino.length; ++y) {
+                for (var x = 0; x < nextTetromino[y].length; ++x) {
+                    if (nextTetromino[y][x]) {
+                        nextCtx.fillStyle = `hsl(${((360 / tetrominos.length) * nextTetromino[y][x]) % 360},100%,50%)`;
+                        nextCtx.fillRect(x * nextCellSize, y * nextCellSize, nextCellSize, nextCellSize);
+                        nextCtx.strokeStyle = "#000"; // цвет контура
+                        nextCtx.lineWidth = 1; // толщина контура
+                        nextCtx.strokeRect(x * nextCellSize + 1, y * nextCellSize + 1, nextCellSize - 2, nextCellSize - 2); // рисуем прямоугольник с контуром внутри
+                    }
+                }
+            }
+        }
+
+
+        // Задаем размеры поля
+        var width = 10;
+        var height = 20;
+
+        // задаём размер ячейки поля
+        widthSize = 45
+        heightSize = widthSize
+        canvas.width = width * widthSize
+        canvas.height = height * heightSize
+
+        // фигуры Тетрамино
+        const tetrominos = [
+            [
+                [0, 0, 1, 0],
+                [0, 0, 1, 0],
+                [0, 0, 1, 0],
+                [0, 0, 1, 0]
+            ],
+            [
+                [0, 2, 0],
+                [0, 2, 0],
+                [2, 2, 0]
+            ],
+            [
+                [0, 3, 0],
+                [0, 3, 0],
+                [0, 3, 3]
+            ],
+            [
+                [4, 4],
+                [4, 4]
+            ],
+            [
+                [0, 0, 0],
+                [0, 5, 5],
+                [5, 5, 0]
+            ],
+            [
+                [0, 0, 0],
+                [6, 6, 0],
+                [0, 6, 6]
+            ],
+            [
+                [0, 0, 0],
+                [7, 7, 7],
+                [0, 7, 0]
+            ]
+        ];
+
+        // Текущая фигура
+        var CurrentTetromino;
+        var CurrentTetrominoPositionX;
+        var CurrentTetrominoPositionY;
+
+        // Следующая фигура
+        var nextTetromino;
+
+        // Игровое поле
+        var fieldArray;
+
+        // Функция генерации случайного тетрамино в случайном положении
+        function getRandomTetrominos() {
+            randomIndex = Math.floor(Math.random() * tetrominos.length);
+            var tetromino = tetrominos[randomIndex]
+            randomIndex = Math.floor(Math.random() * 4);
+            for (var i = 0; i < randomIndex; i++) {
+                tetromino = rotateArray(tetromino)
+            }
+            return tetromino
+        };
+
+        // Функция поворачивание массива массивов
+        function rotateArray(arr) {
+            const n = arr.length;
+            const result = [];
+            for (let i = 0; i < n; i++) {
+                result.push([]);
+                for (let j = 0; j < n; j++) {
+                    result[i][j] = arr[n - j - 1][i];
+                }
+            }
+            return result;
+        }
+
+        // Функция поворачивание массива массивов обратно
+        function rotateArrayReversed(arr) {
+            const n = arr.length;
+            const result = [];
+            for (let i = 0; i < n; i++) {
+                result.push([]);
+                for (let j = 0; j < n; j++) {
+                    result[i][j] = arr[j][n - i - 1];
+                }
+            }
+            return result;
+        }
+        var spaseIsPressed=false;
+        // Функция инициализаци Тетрамино
+        function initNextTetrominos() {
+            CurrentTetrominoPositionY = 0;
+            CurrentTetrominoPositionX = Math.floor((width - CurrentTetromino.length) / 2);
+            for (let i = 0; i < CurrentTetromino.length; i++) {
+                let isemptyline = true
+                for (let j = 0; j < CurrentTetromino.length; j++) {
+                    if (CurrentTetromino[i][j]) {
+                        isemptyline = false
+                    }
+                };
+                if (isemptyline) {
+                    CurrentTetrominoPositionY--;
+                } else {
+                    break;
+                }
+            };
+            if (hasCollision()) {
+                startGame();
+                return;
+            }
+            spaseIsPressed=false;
+            CurrentTetrominoPositionY--
+            drawNextTetromino();
+        };
+
+        // ВОзвращает true если фигура имеет коллизию
+        function hasCollision() {
+            for (let i = 0; i < CurrentTetromino.length; i++) {
+                for (let j = 0; j < CurrentTetromino.length; j++) {
+                    if (CurrentTetromino[i][j]) {
+                        const x = CurrentTetrominoPositionX + j;
+                        const y = CurrentTetrominoPositionY + i;
+                        if (y >= fieldArray.length || x < 0 || x >= fieldArray[0].length || y < 0 || fieldArray[y][x] > 0) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // no commento
+        function startGame() {
+            fieldArray = new Array(height);
+            for (var i = 0; i < height; i++) {
+                fieldArray[i] = new Array(width).fill(0);
+            }
+            CurrentTetromino = getRandomTetrominos();
+            nextTetromino = getRandomTetrominos();
+            initNextTetrominos();
+        }
+
+        // no commento
+        function draw() {
+            ctx.fillStyle = "#fff"
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < width; i++) {
+                for (var j = 0; j < height; j++) {
+                    if (fieldArray[j][i] != 0) {
+                        var saturation;
+                        if (fieldArray[j][i] > 0) {
+                            saturation = 75
+                        } else { saturation = 100 }
+                        ctx.fillStyle = `hsl(${((360 / tetrominos.length) * Math.abs(fieldArray[j][i])) % 360},${saturation}%,50%)`;
+                        ctx.fillRect(i * widthSize, j * heightSize, widthSize, heightSize);
+
+                        ctx.strokeStyle = "#000"; // цвет контура
+                        ctx.lineWidth = 1; // толщина контура
+                        ctx.strokeRect(i * widthSize + 1, j * heightSize + 1, widthSize - 2, heightSize - 2); // рисуем прямоугольник с контуром внутри
+
+                    }
+                }
+            }
+        }
+        // 
+        // Функция падения
+        function fall() {
+            CurrentTetrominoPositionY++;
+            if (hasCollision()) {
+                // если имеем коллизию то возвращаем фигуру назад и фиксируем
+                CurrentTetrominoPositionY--
+                for (let i = 0; i < CurrentTetromino.length; i++) {
+                    for (let j = 0; j < CurrentTetromino.length; j++) {
+                        if (CurrentTetromino[i][j]) {
+                            fieldArray[CurrentTetrominoPositionY + i][CurrentTetrominoPositionX + j] = CurrentTetromino[i][j];
+                        }
+                    }
+                };
+                CurrentTetromino = nextTetromino;
+                nextTetromino = getRandomTetrominos();
+                initNextTetrominos();
+            } else {
+                updateFieldArray();
+                checkLines();
+            };
+            if (spaseIsPressed){
+                fall();
+            }
+            draw();
+        };
+
+        function checkLines() {
+            let completedLines = [];
+
+            for (let i = 0; i < height; i++) {
+                if (fieldArray[i].every(block => block > 0)) { // check if line is complete
+                    completedLines.push(i);
+                }
+            }
+
+            if (completedLines.length > 0) {
+                // clear completed lines
+                for (let i of completedLines) {
+                    fieldArray.splice(i, 1);
+                    fieldArray.unshift(new Array(width).fill(0));
+                }
+            }
+        }
+
+
+        function updateFieldArray() {
+            // Очищение предыдущей фигуры
+            for (var i = 0; i < height; i++) {
+                for (var j = 0; j < width; j++) {
+                    if (fieldArray[i][j] < 0) {
+                        fieldArray[i][j] = 0
+                    };
+                };
+            };
+            // Рисование новой фигуры
+            for (let i = 0; i < CurrentTetromino.length; i++) {
+                for (let j = 0; j < CurrentTetromino.length; j++) {
+                    if (CurrentTetromino[i][j]) {
+                        fieldArray[CurrentTetrominoPositionY + i][CurrentTetrominoPositionX + j] = -CurrentTetromino[i][j];
+                    }
+                }
+            };
+
+        }
+
+        function keypress(event) {
+            console.log(event.keyCode);
+            if (event.keyCode === 37) { // left arrow
+                CurrentTetrominoPositionX--;
+                if (hasCollision()) { // check for collision
+                    CurrentTetrominoPositionX++; // revert
+                }
+            } else if (event.keyCode === 39) { // right arrow
+                CurrentTetrominoPositionX++;
+                if (hasCollision()) { // check for collision
+                    CurrentTetrominoPositionX--; // revert
+                }
+            } else if (event.keyCode === 38) { // up arrow
+                CurrentTetromino = rotateArray(CurrentTetromino); // rotate the tetromino
+                if (hasCollision()) { // check for collision
+                    CurrentTetromino = rotateArrayReversed(CurrentTetromino, -1); // revert
+                }
+            } else if (event.keyCode === 40) { // down arrow
+                fall();
+            }
+            else if(event.keyCode==32)
+            {
+                spaseIsPressed=true;
+                fall();
+            }
+            updateFieldArray();
+            draw();
+        };
+
+        document.addEventListener("keydown", keypress)
+        // no commento
+        function loop() {
+            fall();
+            draw();
+        }
+
+        // Запускаем игру
+        startGame();
+        setInterval(loop, 1000);
+
+    </script>
+</body>
