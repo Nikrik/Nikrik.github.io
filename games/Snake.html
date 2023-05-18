@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Змейка на HTML и JS</title>
+    <style>
+        body {
+            background-color: #ddd;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // Получаем ссылку на canvas и создаем контекст рисования
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        // Задаем размеры поля
+        var width = 30;
+        var height = 30;
+
+        // задаём размер ячейки поля
+        widthSize = 25
+        heightSize = 25
+        canvas.width = width * widthSize
+        canvas.height = height * heightSize
+
+        // Создаем игровое поле 
+        var fieldArray;
+        // объект "змейка"
+        var snake;
+        // Следующее направление
+        var direction = "right";
+        // Предыдущее направление (он не должен разворачиваться на 180)
+        var lastDirection;
+        // Создаём новую игру
+        function newGame() {
+            // Задаем начальное направление движения змейки
+            lastDirection = direction;
+
+            // Голова змейки посередине поля вначале игры
+            snake = {
+                x: Math.
+                    floor(height / 2),
+                y: Math.floor(width / 2),
+                // Длина змейки
+                length: 3
+            }
+            // Очищение (создание) игрвого поля
+            fieldArray = new Array(height);
+            for (var i = 0; i < height; i++) {
+                fieldArray[i] = new Array(width).fill(0);
+            }
+            fieldArray[snake.x][snake.y] = snake.length
+            generateApple();
+        }
+
+        // Генерируем яблоко вне препятствий
+        function generateApple() {
+            var row = Math.floor(Math.random() * height);
+            var col = Math.floor(Math.random() * width);
+
+            while (fieldArray[row][col] !== 0) {
+                row = Math.floor(Math.random() * height);
+                col = Math.floor(Math.random() * width);
+            }
+
+            fieldArray[row][col] = -1;
+        }
+
+        // Функция для отрисовки
+        function drawSnake() {
+            // Очищаем поле
+            ctx.fillStyle = "#fff"
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Рисуем тело змейки
+            for (var i = 0; i < width; i++) {
+                for (var j = 0; j < height; j++) {
+                    if (fieldArray[j][i] > 0) {
+                        ctx.fillStyle = `hsl(${((360 / snake.length) * fieldArray[j][i]) % 360},100%,50%)`;
+                        ctx.fillRect(i * widthSize, j * heightSize, widthSize, heightSize);
+                    }
+                    // Рисуем яблоко
+                    else if (fieldArray[j][i] < 0) {
+                        ctx.fillStyle = "#000";
+                        ctx.fillRect(i * widthSize, j * heightSize, widthSize, heightSize);
+                    }
+                }
+            }
+        }
+
+        // Функция логики
+        function moveSnake() {
+            // Определяем новые координаты для головы змейки в зависимости от значения direction
+            var newHeadX = snake.x;
+            var newHeadY = snake.y;
+
+            switch (direction) {
+                case "up":
+                    newHeadX--
+                    break;
+                case "down":
+                    newHeadX++;
+                    break;
+                case "left":
+                    newHeadY--;
+                    break;
+                case "right":
+                    newHeadY++;
+                    break;
+            }
+            // Обновляем координаты змейки
+            snake.x = newHeadX;
+            snake.y = newHeadY;
+
+            // что бы нельзя было развернуться на 180 записываем предыдущее направление змейки
+            lastDirection = direction
+
+            // Проверяем, не вышла ли змейка за границы поля
+            if (snake.x < 0 || snake.x >= height || snake.y < 0 || snake.y >= width) {
+                // Змейка вышла за границы поля - проигрыш
+                newGame();
+                return;
+            }
+
+            // Если змейка съела яблоко
+            if (fieldArray[snake.x][snake.y] == -1) {
+                snake.length++;
+                generateApple();
+            }
+            else {
+                // Обновляем поле, удаляя хвост змейки и добавляя новую голову если яблоко не было съедено
+                for (var i = 0; i < height; i++) {
+                    for (var j = 0; j < width; j++) {
+                        if (fieldArray[i][j] > 0) {
+                            fieldArray[i][j]--;
+                        }
+                    }
+                }
+            }
+
+            // Проверяем, не столкнулась ли змейка со своим телом
+            if (fieldArray[snake.x][snake.y] > 0) {
+                // Змейка столкнулась со своим телом - проигрыш
+                newGame();
+                return;
+            }
+
+            fieldArray[snake.x][snake.y] = snake.length;
+        }
+
+        // Функция для изменения направления движения змейки
+        function changeDirection(event) {
+            switch (event.keyCode) {
+                case 37:
+                    if (lastDirection != "right") {
+                        direction = "left";
+                    }
+                    break;
+                case 38:
+                    if (lastDirection != "down") {
+                        direction = "up";
+                    }
+                    break;
+                case 39:
+                    if (lastDirection != "left") {
+                        direction = "right";
+                    }
+                    break;
+                case 40:
+                    if (lastDirection != "up") {
+                        direction = "down";
+                    }
+                    break;
+            }
+        }
+
+        // Обрабатываем нажатия клавиш
+        document.addEventListener("keydown", changeDirection);
+        document.addEventListener('touchstart', logTouchCoords);
+
+        function logTouchCoords(event) {
+            const touchX = event.touches[0].clientX;
+            const touchY = event.touches[0].clientY;
+            event.target.getBoundingClientRect()
+        }
+
+
+        newGame();
+        // Запускаем игру
+        setInterval(function () {
+            moveSnake();
+            drawSnake();
+        }, 200);
+
+    </script>
+</body>
+
+</html>
