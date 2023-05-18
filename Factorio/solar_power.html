@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Калькулятор солнечных панелей</title>
+        <link rel="stylesheet" href="static/css/style.css">
+    </head>
+    <body>
+        <label for="solar-panels">Количество солнечных панелей:</label>
+        <input type="number" id="solar-panels" name="solar-panels" value="25">
+        <label for="batteries">Количество аккумуляторов:</label>
+        <input type="number" id="batteries" name="batteries" value="21">
+        <button type="button" onclick="calculatePanelsAndBatteries()">Рассчитать</button>
+        <script>
+            function calculatePanelsAndBatteries() {
+                // получение значений из полей ввода
+                // соотношение 21 аккумулятор на 25 солнечных панелей
+                var solarPanels = document.getElementById("solar-panels").value / 25;
+                var batteries = document.getElementById("batteries").value / 21;
+
+                console.log(`Полезное соотношение ${batteries/solarPanels}`)
+                // определение чего нехватает и вывод сообщения об этом
+                if (batteries > solarPanels) {
+                    alert(`Не хватает ${batteries*25-solarPanels*25} солнечных панелей.`);
+                } else if (solarPanels > batteries) {
+                    alert(`Не хватает ${solarPanels*21-batteries*21} аккумуляторов.`);
+                } else {
+                    alert("Все в порядке, достаточно солнечных панелей и аккумуляторов.");
+                }
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>Скорость поезда</title>
+        <link rel="stylesheet" href="static/css/style.css">
+    </head>
+    <body>
+        <h2>Ускорение и максимальная скорость поезда</h2>
+        <p>Ускорение поезда зависит от количества вагонов, типа переднего вагона и топлива.</p>
+        <p>Этот калькулятор рассчитывает максимальную скорость и время её достижения.</p>
+
+        <div id="calculator">
+            <label for="forward_locomotives">Кол-во локомотивов, направленных вперёд</label>
+            <input type="text" id="forward_locomotives" value="1">
+
+
+            <label for="backward_locomotives">Кол-во локомотивов, направленных назад</label>
+            <input type="text" id="backward_locomotives" value="0">
+
+
+            <label for="cargo_fluid_wagons">Кол-во грузовых вагонов / цистерн</label>
+            <input type="text" id="cargo_fluid_wagons" value="0">
+
+
+            <label for="artillery_wagons">Кол-во артиллерийских вагонов</label>
+            <input type="text" id="artillery_wagons" value="0">
+
+
+            <label for="front_wagon">Тип вагонов в голове поезда</label>
+            <select id="front_wagon">
+                <option value="0.0075">Локомотив</option>
+                <option value="0.01">Грузовой, цистерна</option>
+                <option value="0.015">Артиллерия</option>
+            </select>
+
+
+            <label for="fuel">Тип топлива</label>
+            <select id="fuel">
+                <option value="1,   1"   >Уголь, дерево</option>
+                <option value="1.2, 1.05">Твёрдое топливо</option>
+                <option value="1.8, 1.15">Ракетное топливо</option>
+                <option value="2.5, 1.15">Ядерное топливо</option>
+            </select>
+
+
+            <label for="time">Время достижения максимальной скорости (с)</label>
+            <input type="text" id="time" disabled="" readonly="" size="5">
+
+
+            <label for="velocity">Максимальная скорость (км/ч)</label>
+            <input type="text" id="velocity" disabled="" readonly="" size="5">
+
+
+            <button onclick="calculateScienceConsumedPerMinute();">Расчитать</button>
+        </div>
+
+        <p id="credits"> Credits to <a href="https://calculatorio.com/">Calculatorio</a></p>
+        <script>
+            function calculateScienceConsumedPerMinute() {
+                var forward_locomotives = Number(document.getElementById("forward_locomotives").value);
+                var backward_locomotives = Number(document.getElementById("backward_locomotives").value);
+                var cargo_fluid_wagons = Number(document.getElementById("cargo_fluid_wagons").value);
+                var artillery_wagons = Number(document.getElementById("artillery_wagons").value);
+                var air_resistance_of_front_rolling_stock = Number(document.getElementById("front_wagon").value);
+                var fuel = document.getElementById("fuel").value.split(",");
+
+                var fuel_acceleration_bonus = Number(fuel[0]);
+                var base_max_speed = 1.2;
+                var max_speed = base_max_speed * Number(fuel[1]);
+                var train_weight = 2000 * (forward_locomotives + backward_locomotives) + 1000 * cargo_fluid_wagons + 4000 * artillery_wagons;
+                var train_friction_force = (forward_locomotives + backward_locomotives + cargo_fluid_wagons + artillery_wagons) / 2;
+                var old_train_speed = -1;
+                var train_speed = 0;
+                var resistance = (1 - air_resistance_of_front_rolling_stock * 1000 / train_weight);
+                var acceleration = (10 * forward_locomotives * fuel_acceleration_bonus / train_weight) - (train_friction_force / train_weight);
+                var ticks = 0;
+                if (acceleration < 0) {
+                    acceleration = 0;
+                }
+                if (acceleration > 0) {
+                    while (train_speed != old_train_speed) {
+                        old_train_speed = train_speed;
+                        train_speed = (old_train_speed + acceleration) * resistance;
+                        train_speed = Math.min(max_speed, train_speed);
+                        train_speed = Math.max(0, train_speed);
+                        ++ticks;
+                    }
+                }
+                // Speed is measured in tiles (meters) per tick. Multiply by 60 to get m/s, then 3.6 to get km/h
+                train_speed = train_speed * 60 * 3.6;
+                var time = ticks / 60;
+                document.getElementById("time").value = time.toFixed(2);
+                document.getElementById("velocity").value = train_speed.toFixed(2);
+            }
+        </script>
+    </body>
+</html>
