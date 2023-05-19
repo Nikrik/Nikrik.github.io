@@ -1,9 +1,12 @@
-@import url('https://fonts.googleapis.com/css?family=Jura&display=swap');
+@font-face {
+    font-family: 'Comfortaa';
+    src: url('fonts/Comfortaa-Light.ttf') format('truetype');
+}
 
 body {
     background-color: #141516;
     color: #fff;
-    font-family: 'Jura', sans-serif;
+    font-family: 'Comfortaa', sans-serif;
     font-size: 16px;
     text-align: center;
 }
@@ -31,7 +34,6 @@ label {
 
 input[type="text"],
 select {
-    font-family: 'Jura', sans-serif;
     display: block;
     margin: 4px auto;
     padding: 4px;

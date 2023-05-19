@@ -6,11 +6,13 @@
         <link rel="stylesheet" href="static/css/style.css">
     </head>
     <body>
-        <label for="solar-panels">Количество солнечных панелей:</label>
-        <input type="number" id="solar-panels" name="solar-panels" value="25">
-        <label for="batteries">Количество аккумуляторов:</label>
-        <input type="number" id="batteries" name="batteries" value="21">
-        <button type="button" onclick="calculatePanelsAndBatteries()">Рассчитать</button>
+        <div id="calculator">
+            <label for="solar-panels">Количество солнечных панелей:</label>
+            <input type="number" id="solar-panels" name="solar-panels" value="25">
+            <label for="batteries">Количество аккумуляторов:</label>
+            <input type="number" id="batteries" name="batteries" value="21">
+            <button type="button" onclick="calculatePanelsAndBatteries()">Рассчитать</button>
+        </div>
         <script>
             function calculatePanelsAndBatteries() {
                 // получение значений из полей ввода
