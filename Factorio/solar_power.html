@@ -1,35 +1,59 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Калькулятор солнечных панелей</title>
-        <link rel="stylesheet" href="static/css/style.css">
-    </head>
-    <body>
-        <div id="calculator">
-            <label for="solar-panels">Количество солнечных панелей:</label>
-            <input type="number" id="solar-panels" name="solar-panels" value="25">
-            <label for="batteries">Количество аккумуляторов:</label>
-            <input type="number" id="batteries" name="batteries" value="21">
-            <button type="button" onclick="calculatePanelsAndBatteries()">Рассчитать</button>
-        </div>
-        <script>
-            function calculatePanelsAndBatteries() {
-                // получение значений из полей ввода
-                // соотношение 21 аккумулятор на 25 солнечных панелей
-                var solarPanels = document.getElementById("solar-panels").value / 25;
-                var batteries = document.getElementById("batteries").value / 21;
 
-                console.log(`Полезное соотношение ${batteries/solarPanels}`)
-                // определение чего нехватает и вывод сообщения об этом
-                if (batteries > solarPanels) {
-                    alert(`Не хватает ${batteries*25-solarPanels*25} солнечных панелей.`);
-                } else if (solarPanels > batteries) {
-                    alert(`Не хватает ${solarPanels*21-batteries*21} аккумуляторов.`);
-                } else {
-                    alert("Все в порядке, достаточно солнечных панелей и аккумуляторов.");
-                }
-            }
-        </script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <title>Калькулятор солнечных панелей</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <div id="calculator">
+        <label for="solar-panels">Количество солнечных панелей:</label>
+        <input type="number" id="solar-panels" name="solar-panels">
+        <button type="button" onclick="calculateFromPanels()">Рассчитать из панелей</button>
+        <label for="batteries">Количество аккумуляторов:</label>
+        <input type="number" id="batteries" name="batteries">
+        <button type="button" onclick="calculateFromBatteries()">Рассчитать из аккумуляторов</button>
+        <label for="AvgPower">Средняя мощность, МВт</label>
+        <input type="number" id="AvgPower" name="AvgPower">
+        <button type="button" onclick="calculateFromAvgPower()">Рассчитать из средней мощности, МВт</button>
+        <label for="MaxPower">Максимальная мощность, МВт</label>
+        <input type="number" id="MaxPower" name="MaxPower">
+        <button type="button" onclick="calculateFromMaxPower()">Рассчитать из максимальной мощности, МВт</button>
+
+    </div>
+    <script>
+        calculateAll(1)
+        function calculateFromPanels(event) {
+            var sections = document.getElementById("solar-panels").value / 25;
+            calculateAll(sections);
+        }
+        function calculateFromBatteries(event) {
+            var sections = document.getElementById("batteries").value / 21;
+            calculateAll(sections);
+        }
+        function calculateFromAvgPower(event) {
+            var solarPanels = document.getElementById("AvgPower").value / 42;
+            var sections = solarPanels * 1000 / 25;
+            calculateAll(sections);
+        }
+        function calculateFromMaxPower(event) {
+            var solarPanels = document.getElementById("MaxPower").value / 60;
+            var sections = solarPanels * 1000 / 25;
+            calculateAll(sections);
+        }
+        function calculateAll(sections) {
+            var batteries = sections * 21;
+            document.getElementById("batteries").value = parseFloat(batteries.toFixed(2));
+            var solarPanels = sections * 25;
+            document.getElementById("solar-panels").value = parseFloat(solarPanels.toFixed(2));
+            var AvgPower = solarPanels * 42 / 1000;
+            document.getElementById("AvgPower").value = parseFloat(AvgPower.toFixed(2));
+            var MaxPower = solarPanels * 60 / 1000;
+            document.getElementById("MaxPower").value = parseFloat(MaxPower.toFixed(2));
+        }
+    </script>
+</body>
+
 </html>
